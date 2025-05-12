@@ -7,3 +7,17 @@ export interface ITyPath {
 	isForecast: boolean
 	tyType: string
 }
+
+/** 台风采集基础信息接口 */
+export interface ITyDetail {
+	tyCode: string
+	tyNameCh: string
+	tyNameEn: string
+	timeStamp: number
+}
+
+/** 提交的台风复合接口 */
+export interface ITyPathComplex {
+	tyDetail: ITyDetail
+	tyPathList: ITyPath[]
+}

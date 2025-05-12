@@ -187,7 +187,6 @@ import { ISurgeRasterLayer, SurgeRasterGeoLayer, SurgeRasterLayer } from './rast
 import { Sosurface } from './isosurface'
 import { DEFAULT_COLOR_SCALE } from '@/const/colorBar'
 import wave from '@/store/modules/wave'
-import { WaveArrow } from './arrow'
 import { StationBaseInfo } from './station'
 import { WaveBarOptType } from '@/middle_model/geo'
 import { loading } from '@/common/common'

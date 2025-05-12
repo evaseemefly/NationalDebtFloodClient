@@ -24,8 +24,6 @@ import 'georaster-layer-for-leaflet'
 import GeoTIFF, { fromUrl, fromUrls, fromArrayBuffer, fromBlob } from 'geotiff'
 import * as plotty from 'plotty'
 import { ElMessage } from 'element-ui/types/message'
-
-import { WaveScalarRasterTifLayer } from './waveRasterInstance'
 import {
 	AbsSurgeRasterTifLayer,
 	SurgeHourlyScalarRasterLayer,

@@ -1,5 +1,6 @@
 <template>
 	<div
+		v-draggable
 		class="ty_search_form"
 		id="ty_search_form"
 		@mouseover="toTopic($event)"
@@ -122,6 +123,18 @@
 					</button>
 				</div>
 			</div>
+			<div class="ty-row">
+				<span class="ty-search-title">结束</span>
+				<div class="ty-search-detail">
+					<button
+						type="top"
+						class="detail-commit el-button el-button--primary btn-primary"
+						@click="commitTySurgeTask"
+					>
+						提交<i class="far fa-save"></i>
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -154,7 +167,9 @@ import {
 	GET_SHOW_TYPHOON_SEARCH_FORM,
 } from '@/store/types'
 import { IPathType } from '@/types'
-import { submitTyphoonPath } from '@/api/task'
+import { submitTyphoonPath, submitTyphoonSurge } from '@/api/task'
+import { ITyDetail, ITyPath, ITyPathComplex } from '@/interface/typhoon'
+import moment from 'moment'
 @Component({
 	filters: {
 		filterFormatDate2YMD: formatDate2YMD,
@@ -172,9 +187,9 @@ import { submitTyphoonPath } from '@/api/task'
 })
 export default class TySearchFormView extends Vue {
 	/** 爬取的台风路径数据列表 */
-	spiderTyCMAList: IPathType[] = []
+	spiderTyCMAList: ITyPath[] = []
 	/** 过滤后的台风路径数据列表 */
-	filterTyList: IPathType[] = []
+	filterTyList: ITyPath[] = []
 
 	/** 选中的台风 index */
 	selectedTrIndex = 0
@@ -192,6 +207,8 @@ export default class TySearchFormView extends Vue {
 
 	startDt: Date = new Date(1970, 1, 1)
 	endDt: Date = new Date(1970, 1, 1)
+	/** 爬取的台风基础信息 */
+	tyDetail: ITyDetail = null
 
 	setCurrentTr(val: IPathType, index: number): void {
 		// console.log(`checked:index ${index}, val: ${val}`)
@@ -344,6 +361,13 @@ export default class TySearchFormView extends Vue {
 								tyType: temp.tyType,
 							})
 						})
+						const currentTs = moment.now()
+						this.tyDetail = {
+							tyCode: res.data.ty_code,
+							tyNameCh: res.data.ty_name_ch,
+							tyNameEn: res.data.ty_name_en,
+							timeStamp: currentTs,
+						}
 					}
 				}
 			)
@@ -382,7 +406,25 @@ export default class TySearchFormView extends Vue {
 
 	/** 根据当前选取的台风过滤路径提交至后台 */
 	commit(): void {
-		submitTyphoonPath(this.filterTyList).then((res) => {
+		const submitData: ITyPathComplex = {
+			tyDetail: this.tyDetail,
+			tyPathList: this.filterTyList,
+		}
+		submitTyphoonPath(submitData).then((res) => {
+			if (res.status === 200) {
+				this.$message.success('提交成功')
+			} else {
+				this.$message.error('提交失败')
+			}
+		})
+	}
+
+	commitTySurgeTask(): void {
+		const submitData: ITyPathComplex = {
+			tyDetail: this.tyDetail,
+			tyPathList: this.filterTyList,
+		}
+		submitTyphoonSurge(submitData).then((res) => {
 			if (res.status === 200) {
 				this.$message.success('提交成功')
 			} else {
@@ -432,7 +474,7 @@ export default class TySearchFormView extends Vue {
 	 * @param endTime 结束时间
 	 * @returns 过滤后的台风路径数据列表
 	 */
-	filterTyphoonPathByTimeRange(list: IPathType[], startTime: Date, endTime: Date): IPathType[] {
+	filterTyphoonPathByTimeRange(list: ITyPath[], startTime: Date, endTime: Date): ITyPath[] {
 		// 确保开始时间不晚于结束时间
 		if (startTime > endTime) {
 			throw new Error('开始时间不能晚于结束时间')
