@@ -113,6 +113,7 @@ import {
 	SET_TARGET_POSITION_LATLNG,
 	GET_GLOBAL_SURGE_FORECAST_PRODUCT,
 	GET_TYPHOON_PATH_LIST,
+	GET_TY_GROUP,
 } from '@/store/types'
 // 默认常量
 import {
@@ -142,7 +143,7 @@ import { MenuType, TyScatterMenuType } from '@/enum/menu'
 import { ForecastAreaEnum, LayerTypeEnum, MapLayerEnum, RasterLayerEnum } from '@/enum/map'
 
 // api
-import { loadTyRealDataList, loadStationTideDataList } from '@/api/typhoon'
+import { loadTyRealDataList, loadStationTideDataList, getTyGroupPathList } from '@/api/typhoon'
 import {
 	loadStationDetailDataList,
 	loadStationNameDict,
@@ -161,7 +162,7 @@ import {
 // 工具类
 import { convertTyRealDataMongo2TyCMAPathLine } from '@/middle_model/util'
 import moment, { relativeTimeRounding } from 'moment'
-import { ITyPath } from '@/interface/typhoon'
+import { ITyGroupComplexList, ITyGroupTip, ITyPath } from '@/interface/typhoon'
 import { Collapse, Loading } from 'element-ui'
 import station from '@/store/modules/station'
 // 第三方插件
@@ -294,6 +295,9 @@ export default class GlobalForecastMapView extends Vue {
 
 	/** 目前添加至map的markers id 集合 */
 	markersIdList: number[] = []
+
+	/** 台风集合预报路径集合 */
+	tyGroupList: ITyGroupComplexList[] = []
 
 	/** vuex common now 当前时间 */
 	@Getter(GET_NOW, { namespace: 'common' })
@@ -549,12 +553,77 @@ export default class GlobalForecastMapView extends Vue {
 		this.spiderTyPathLineLayerId = cmaPathLineLayer._leaflet_id
 	}
 
+	@Watch('getTyGroup')
+	onGetTyGroup(val: ITyGroupTip): void {
+		// console.log('getTyGroup', val)
+		if (val) {
+			this.getTyGroupList(val.tyCode, val.timeStamp)
+		}
+	}
+
+	/**
+	 *  根据当前选择的 group 获取对应的集合列表 */
+	getTyGroupList(code: string, ts: number): void {
+		// this.isLoading = true
+		getTyGroupPathList(code, ts / MS_UNIT)
+			.then((res) => {
+				this.tyGroupList = res.data
+				this.initTyGroupList()
+				// this.isLoading = false
+			})
+			.catch((err) => {
+				console.error(err)
+				// this.isLoading = false
+			})
+	}
+
+	initTyGroupList(): void {
+		const mymap: L.Map = this.$refs.basemap['mapObject']
+		for (let i = 0; i < this.tyGroupList.length; i++) {
+			const val = this.tyGroupList[i]
+
+			const cmaPathLine = new TyCMAPathLine(mymap, val.tyPathList)
+			const cmaPathLineLayer = cmaPathLine.add2Map(
+				{
+					onClick: (e: {
+						target: {
+							options: {
+								customData: TyphoonCircleStatus
+							}
+						}
+					}) => {
+						console.log(e.target.options.customData.forecastDt)
+					},
+					onMouseOver: (e: {
+						target: {
+							options: {
+								customData: TyphoonCircleStatus
+							}
+						}
+					}) => {},
+					onMouseOut: (e: {
+						target: {
+							options: {
+								customData: TyphoonCircleStatus
+							}
+						}
+					}) => {},
+				},
+				false
+			)
+		}
+	}
+
 	/** 标量场的显示类型 栅格图层|等值面 */
 	@Getter(GET_SCALAR_SHOW_TYPE, { namespace: 'common' })
 	getScalarShowType: ScalarShowTypeEnum
 
 	@Getter(GET_STATION_CODE, { namespace: 'station' })
 	getStationCode: string
+
+	/** 获取当前选中的台风 group case */
+	@Getter(GET_TY_GROUP, { namespace: 'typhoon' })
+	getTyGroup: ITyGroupTip
 
 	/** 设置字典基础信息集合 */
 	@Mutation(SET_STATIONS_BASEINFO_LIST, { namespace: 'station' }) setStationsBaseInfo: (

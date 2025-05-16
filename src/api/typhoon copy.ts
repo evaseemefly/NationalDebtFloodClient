@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosResponse } from 'axios'
+import axios from 'axios'
 import { host } from './common'
 import authHeader from './auth_header'
 import { ISearchTyStationParams } from '@/middle_model/api_params'
@@ -12,7 +12,7 @@ import { DEFAULT_COMPLEX_NUM, DEFAULT_TY_NUM } from '@/const/default'
 // export const host = host
 axios.defaults.withCredentials = true
 
-const area = '/flood/typhoon'
+const area = '/gis'
 
 /**
  * @description
@@ -185,59 +185,14 @@ const loadStationTideDataList = (par: ISearchTyStationParams) => {
 /**
  * 根据code获取台风路径分组
  * @param tyCode
- * @returns	
- *  eg:{
-		* 	[
-			{
-				"tyCode": "2106",
-				"timestamp": 1747117996
-			},
-			{
-				"tyCode": "2106",
-				"timestamp": 1747125125
-			}
-		]
- * }
+ * @returns
  */
 const getTyGroupbyTask = (tyCode: string) => {
-	const url = `${host}${area}/group/dist`
+	const url = `${host}${area}/get/task/list`
 	return axios.get(url, {
 		headers: authHeader(),
 		params: {
-			ty_code: tyCode,
-		},
-	})
-}
-
-/**
- * 根据台风code和时间戳获取所有的集合路径列表
- * @param tyCode
- * @param timestamp 发布时间戳(单位:s)
- * @returns
- * eg:{
- * 		[
-    		{
-    		    "tyCode": "2106",
-    		    "issueTs": 1725588000,
-    		    "groupType": "center",
-    		    "tyPathList": [
-    		        {
-    		            "forecastDt": "2024-09-05T09:00:00",
-    		            "lat": 19.2,
-    		            "lon": 112.2,
-    		            "bp": 905,
-    		            "isForecast": true,
-    		            "tyType": "center"
-    		        },
- * }	
- */
-const getTyGroupPathList = (tyCode: string, timestamp: number) => {
-	const url = `${host}${area}/grouppath/list`
-	return axios.get(url, {
-		headers: authHeader(),
-		params: {
-			ty_code: tyCode,
-			issue_ts: timestamp,
+			code: tyCode,
 		},
 	})
 }
@@ -249,6 +204,4 @@ export {
 	loadTyScattersByRadius,
 	loadTyScatterByComplex,
 	loadTyListByUniqueParams,
-	getTyGroupbyTask,
-	getTyGroupPathList,
 }

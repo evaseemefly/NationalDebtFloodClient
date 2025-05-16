@@ -153,23 +153,12 @@ class TyCMAPathLine {
 		this.myMap = mymap
 	}
 
-	add2Map(
-		markerFuncs: {
-			onClick: (opt: any) => void
-			onMouseOver: (opt: any) => void
-			onMouseOut: (opt: any) => void
-		},
-		isShowPulsingIcon = true
-	): L.LayerGroup<any> {
-		/**
-		 * icon markers
-		 */
-		let tyPointsList: L.Marker[] = []
-		if (isShowPulsingIcon) {
-			tyPointsList = this.initCenterPulsingIcon(markerFuncs)
-			// tyPointsList = this.initCenterPulsingIcon(markerFuncs)
-		}
-
+	add2Map(markerFuncs: {
+		onClick: (opt: any) => void
+		onMouseOver: (opt: any) => void
+		onMouseOut: (opt: any) => void
+	}): L.LayerGroup<any> {
+		const tyPointsList = this.initCenterPulsingIcon(markerFuncs)
 		const tyPolylineRealdata = this.initLineRealdataLayer()
 		const tyPolylineForecast = this.initLineForecastLayer()
 		return new L.LayerGroup([...tyPointsList, tyPolylineRealdata, tyPolylineForecast]).addTo(
@@ -315,34 +304,12 @@ class TyCMAPathLine {
 
 	/**
 	 * 预报台风风路径
-	 * 25-05-16 对此部分进行改写
+	 *
 	 * @protected
 	 * @return {*}  {L.Polyline}
 	 * @memberof TyCMAPathLine
 	 */
 	protected initLineForecastLayer(): L.Polyline {
-		const latLngs: L.LatLng[] = []
-
-		this.tyPathList.forEach((temp) => {
-			if (temp.isForecast) {
-				latLngs.push(new L.LatLng(temp.lat, temp.lon))
-			}
-		})
-
-		return new L.Polyline(latLngs, { color: '#2980b9', dashArray: '5,10' })
-	}
-
-	/**
-	 * @description
-	 * @deprecated
-	 * 预报台风风路径
-	 * @author evaseemefly
-	 * @date 2025/05/16
-	 * @protected
-	 * @returns {*}  {L.Polyline}
-	 * @memberof TyCMAPathLine
-	 */
-	protected initLineForecastLayerBackUp(): L.Polyline {
 		const latLngs: L.LatLng[] = []
 
 		const forecastTyIndex: number = this.tyPathList.findIndex((temp) => {

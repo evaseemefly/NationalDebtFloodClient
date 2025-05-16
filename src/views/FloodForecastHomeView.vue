@@ -17,6 +17,7 @@
 		<LegendListView></LegendListView>
 		<!-- <RegionStatisticsCard></RegionStatisticsCard> -->
 		<TySearchFormView></TySearchFormView>
+		<tyGroupPathFilterForm></tyGroupPathFilterForm>
 	</div>
 </template>
 
@@ -31,6 +32,7 @@ import ThumbListView from '@/components/thumbs/thumbListView.vue'
 import HeaderLogoView from '@/components/header/headerLogoView.vue'
 import LegendListView from '@/components/toolsBar/legendListView.vue'
 import TySearchFormView from '@/components/forms/tySearchForm.vue'
+import tyGroupPathFilterForm from '@/components/forms/tyGroupPathFilterForm.vue'
 import StationGlobalSurgeDataFormView from '@/components/forms/StationGlobalSurgeDataFormView.vue'
 import RegionStatisticsCard from '@/components/cards/regionStatisticsCard.vue'
 
@@ -61,6 +63,7 @@ import moment from 'moment'
 		TySearchFormView,
 		StationGlobalSurgeDataFormView,
 		RegionStatisticsCard,
+		tyGroupPathFilterForm,
 	},
 })
 export default class GlobalForecastHomeView extends Vue {

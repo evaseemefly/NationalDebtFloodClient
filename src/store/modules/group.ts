@@ -1,10 +1,4 @@
-import { ITyGroupTip } from '@/interface/typhoon'
-import {
-	SET_TYPHOON_PATH_LIST,
-	GET_TYPHOON_PATH_LIST,
-	GET_TY_GROUP,
-	SET_TY_GROUP,
-} from './../types'
+import { SET_TYPHOON_PATH_LIST, GET_TYPHOON_PATH_LIST } from './../types'
 
 export interface ITyphoon {
 	/** 台风路径 */
@@ -16,15 +10,10 @@ export interface ITyphoon {
 		isForecast: boolean
 		tyType: string
 	}[]
-	tyGroup: ITyGroupTip
 }
 
 const state: ITyphoon = {
 	tyPathList: [],
-	tyGroup: {
-		tyCode: '',
-		timeStamp: 0,
-	},
 }
 
 const getters = {
@@ -37,9 +26,6 @@ const getters = {
 		tyType: string
 	}[] {
 		return state.tyPathList
-	},
-	[GET_TY_GROUP](state: ITyphoon): ITyGroupTip {
-		return state.tyGroup
 	},
 }
 
@@ -56,9 +42,6 @@ const mutations = {
 		}[]
 	): void {
 		state.tyPathList = pathList
-	},
-	[SET_TY_GROUP](state: ITyphoon, tyGroup: ITyGroupTip): void {
-		state.tyGroup = tyGroup
 	},
 }
 

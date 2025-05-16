@@ -285,6 +285,11 @@ export const SET_DATE_STEP = 'SET_DATE_STEP'
 /** 获取当前时间间隔 */
 export const GET_DATE_STEP = 'GET_DATE_STEP'
 
+/** 设置当前选中的台风集合 */
+export const SET_TY_GROUP = 'SET_TY_GROUP'
+/** 获取当前选中的台风集合 */
+export const GET_TY_GROUP = 'GET_TY_GROUP'
+
 /** 设置时间间隔 单位 s */
 export const SET_TIMESPAN = 'SET_TIMESPAN'
 /** 设置时间间隔 单位 s */
