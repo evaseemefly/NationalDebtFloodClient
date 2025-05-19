@@ -553,6 +553,13 @@ export default class GlobalForecastMapView extends Vue {
 		this.spiderTyPathLineLayerId = cmaPathLineLayer._leaflet_id
 	}
 
+	/**
+	 * 25-05-15
+	 * 监听 tyGroup 变化
+	 * step1: 加载对应的台风集合路径
+	 * step2: 加载增水集合
+	 * @param val
+	 */
 	@Watch('getTyGroup')
 	onGetTyGroup(val: ITyGroupTip): void {
 		// console.log('getTyGroup', val)
