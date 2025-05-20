@@ -114,6 +114,7 @@ import {
 	GET_GLOBAL_SURGE_FORECAST_PRODUCT,
 	GET_TYPHOON_PATH_LIST,
 	GET_TY_GROUP,
+	GET_TY_GROUP_PATH,
 } from '@/store/types'
 // 默认常量
 import {
@@ -198,9 +199,10 @@ import { loadAllStationStatusJoinGeoInfo, loadAllStationLastSurge } from '@/api/
 import { StationBaseInfoMidModel } from '@/middle_model/station'
 import { IScale } from '@/const/colorBar'
 import { getIntegerList } from '@/util/math'
-import { loadGlobalHourlyCoverageTif } from '@/api/raster'
+import { loadGlobalHourlyCoverageTif, loadSurgeMaxCoverageTifByTyGroup } from '@/api/raster'
 import { ForecastProductTypeEnum } from '@/enum/surge'
 import { getBoundsByArea } from '@/util/map'
+import { formatGroupType2Enmu } from '@/util/filter'
 
 /** 判断本组件内的surge配置是否符合 */
 const checkSurgeOpts = (area: ForecastAreaEnum, issueTs: number, forecastTs: number): boolean => {
@@ -621,6 +623,22 @@ export default class GlobalForecastMapView extends Vue {
 		}
 	}
 
+	@Watch('getTyGroupPath')
+	onGetTyGroupPath(val: ITyGroupComplexList): void {
+		const groupType = formatGroupType2Enmu(val.groupType)
+		if (val) {
+			loadSurgeMaxCoverageTifByTyGroup(val.tyCode, val.issueTs, groupType)
+				.then((res) => {
+					/** 获取的当前group对应的max surge tif=> url */
+					const tifUrl: string = res.data
+					console.log(res)
+				})
+				.catch((err) => {
+					console.error(err)
+				})
+		}
+	}
+
 	/** 标量场的显示类型 栅格图层|等值面 */
 	@Getter(GET_SCALAR_SHOW_TYPE, { namespace: 'common' })
 	getScalarShowType: ScalarShowTypeEnum
@@ -631,6 +649,10 @@ export default class GlobalForecastMapView extends Vue {
 	/** 获取当前选中的台风 group case */
 	@Getter(GET_TY_GROUP, { namespace: 'typhoon' })
 	getTyGroup: ITyGroupTip
+
+	/** 获取当前选中的台风集合路径(5条中的一条) */
+	@Getter(GET_TY_GROUP_PATH, { namespace: 'typhoon' })
+	getTyGroupPath: ITyGroupComplexList
 
 	/** 设置字典基础信息集合 */
 	@Mutation(SET_STATIONS_BASEINFO_LIST, { namespace: 'station' }) setStationsBaseInfo: (

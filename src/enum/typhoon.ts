@@ -19,3 +19,12 @@ export enum TyphoonLevelEnum {
 	/** 超强台风 */
 	SUPERTY,
 }
+
+/** 台风集合类型枚举 */
+export enum TyphoonGroupTypeEnum {
+	GROUP_CENTER = 4101,
+	GROUP_SLOW = 4102,
+	GROUP_FAST = 4103,
+	GROUP_RIGHT = 4104,
+	GROUP_LEFT = 4105,
+}

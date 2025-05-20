@@ -6,7 +6,7 @@ import {
 	DEFAULT_SURGE_VAL,
 	DEFAULT_VAL,
 } from '@/const/default'
-import { TyphoonLevelEnum } from '@/enum/typhoon'
+import { TyphoonGroupTypeEnum, TyphoonLevelEnum } from '@/enum/typhoon'
 import { LayerTypeEnum } from '@/enum/map'
 import { getDateDiffMs } from '@/util/dateUtil'
 import chroma from 'chroma-js'
@@ -134,6 +134,64 @@ const formatTyLevel2Str = (val: string): string => {
 			break
 	}
 	return tyName
+}
+
+/** 根据 台风集合 str => name */
+const formatGroupTypeName = (val: string): string => {
+	let name = ''
+	switch (val) {
+		case 'center':
+			name = '中间路径'
+			break
+		case 'fast':
+			name = '快速路径'
+			break
+		case 'slow':
+			name = '缓慢路径'
+			break
+		case 'right':
+			name = '偏右路径'
+			break
+		case 'left':
+			name = '偏左路径'
+			break
+		default:
+			name = '其他路径'
+			break
+	}
+	return name
+}
+
+/**
+ * @description 台风集合类型 str => enum
+ * @author evaseemefly
+ * @date 2022/09/28
+ * @param {string} val
+ * @returns {*}  {TyphoonGroupTypeEnum}
+ */
+const formatGroupType2Enmu = (val: string): TyphoonGroupTypeEnum => {
+	let type = TyphoonGroupTypeEnum.GROUP_CENTER
+	switch (val) {
+		case 'center':
+			type = TyphoonGroupTypeEnum.GROUP_CENTER
+			break
+		case 'fast':
+			type = TyphoonGroupTypeEnum.GROUP_FAST
+			break
+		case 'slow':
+			type = TyphoonGroupTypeEnum.GROUP_SLOW
+			break
+		case 'right':
+			type = TyphoonGroupTypeEnum.GROUP_RIGHT
+			break
+		case 'left':
+			type = TyphoonGroupTypeEnum.GROUP_LEFT
+			break
+		default:
+			type = TyphoonGroupTypeEnum.GROUP_CENTER
+			break
+	}
+	return type
 }
 
 /**
@@ -511,4 +569,6 @@ export {
 	formatSurgeFiex1NumStr,
 	filterAlertSurgeColorStr,
 	formatSurgeFiexIntStr,
+	formatGroupTypeName,
+	formatGroupType2Enmu,
 }

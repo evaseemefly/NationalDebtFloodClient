@@ -290,6 +290,11 @@ export const SET_TY_GROUP = 'SET_TY_GROUP'
 /** 获取当前选中的台风集合 */
 export const GET_TY_GROUP = 'GET_TY_GROUP'
 
+/** 设置当前case选中的台风路径(指定group path) */
+export const SET_TY_GROUP_PATH = 'SET_TY_GROUP_PATH'
+/** 获取当前case选中的台风路径(指定group path) */
+export const GET_TY_GROUP_PATH = 'GET_TY_GROUP_PATH'
+
 /** 设置时间间隔 单位 s */
 export const SET_TIMESPAN = 'SET_TIMESPAN'
 /** 设置时间间隔 单位 s */

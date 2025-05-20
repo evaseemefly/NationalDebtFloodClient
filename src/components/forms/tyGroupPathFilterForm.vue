@@ -56,6 +56,35 @@
 				</table>
 			</section>
 		</div>
+		<div class="ty-info">
+			<div class="ty-info-header">
+				<h4 class="header-level-title">集合路径:</h4>
+			</div>
+			<section>
+				<table>
+					<thead>
+						<tr>
+							<th scope="col">台风编号</th>
+							<th scope="col">日期</th>
+							<th scope="col">时间</th>
+							<th scope="col">路径</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr
+							v-for="tyGpTemp in tyGroupPathList"
+							:key="tyGpTemp.id"
+							@click="selectTyGroupPath(tyGpTemp)"
+						>
+							<td>{{ tyGpTemp.tyCode }}</td>
+							<td>{{ tyGpTemp.issueTs | filterDate2MD }}</td>
+							<td>{{ tyGpTemp.issueTs | filterformatDate2HM }}</td>
+							<td>{{ tyGpTemp.groupType | filterTyGroupType }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</div>
 	</div>
 </template>
 <script lang="ts">
@@ -69,10 +98,11 @@ import {
 	formatDate2HM,
 	formatTyLevel2Str,
 	formatTyLevel2Cls,
+	formatGroupTypeName,
 } from '@/util/filter'
 
 // 枚举
-import { TyphoonLevelEnum } from '@/enum/typhoon'
+import { TyphoonGroupTypeEnum, TyphoonLevelEnum } from '@/enum/typhoon'
 import { color } from 'echarts'
 import { ColorScales } from '@/const/colorBar'
 // 工具类
@@ -86,13 +116,20 @@ import {
 	GET_TYPHOON_FORECAST_DATETIME,
 	GET_SHOW_TYPHOON_SEARCH_FORM,
 	SET_TY_GROUP,
+	SET_TY_GROUP_PATH,
 } from '@/store/types'
 import { IPathType } from '@/types'
 import { submitTyphoonPath, submitTyphoonSurge } from '@/api/task'
-import { ITyDetail, ITyGroupTip, ITyPath, ITyPathComplex } from '@/interface/typhoon'
+import {
+	ITyDetail,
+	ITyGroupComplexList,
+	ITyGroupTip,
+	ITyPath,
+	ITyPathComplex,
+} from '@/interface/typhoon'
 import moment from 'moment'
 import { ITyTask } from '@/interface/task'
-import { getTyGroupbyTask, getTyGroupPathList } from '@/api/typhoon'
+import { getTyGroupbyTask, getTyGroupDetailList, getTyGroupPathList } from '@/api/typhoon'
 import { IHttpResponse } from '@/interface/common'
 import { MS_UNIT } from '@/const/unit'
 @Component({
@@ -100,6 +137,7 @@ import { MS_UNIT } from '@/const/unit'
 		filterFormatDate2YMD: formatDate2YMD,
 		filterformatDate2HM: formatDate2HM,
 		filterDate2MD: formatDate2MD,
+		filterTyGroupType: formatGroupTypeName,
 		filterIsForecast: (val: boolean): string => {
 			return val ? '预报' : '实况'
 		},
@@ -137,6 +175,9 @@ export default class TyGroupPathFilterFormView extends Vue {
 
 	/** 台风集合路径摘要数组 */
 	tyGroupTips: ITyGroupTip[] = []
+
+	/** 当前case对应的5个路径集合 */
+	tyGroupPathList: ITyGroupComplexList[] = []
 
 	setCurrentTr(val: IPathType, index: number): void {
 		// console.log(`checked:index ${index}, val: ${val}`)
@@ -177,6 +218,24 @@ export default class TyGroupPathFilterFormView extends Vue {
 	selectGroupTy(val: ITyGroupTip): void {
 		// this.getTyGroupList(val.tyCode, val.timeStamp)
 		this.setTyGroup(val)
+		this.getTyGroupPathDetailList(val)
+	}
+
+	/** 选择 5种集合路径 中的一条路径 */
+	selectTyGroupPath(val: ITyGroupComplexList): void {
+		this.setTyGroupPath(val)
+	}
+
+	/** 加载当前case对应的5个记录路径信息 */
+	getTyGroupPathDetailList(val: ITyGroupTip): void {
+		getTyGroupDetailList(val.tyCode, val.timeStamp / MS_UNIT)
+			.then((res: IHttpResponse<ITyGroupComplexList[]>) => {
+				this.tyGroupPathList = res.data
+				// this.setTyphoonPathList(res.data)
+			})
+			.catch((err) => {
+				console.error(err)
+			})
 	}
 
 	/**@deprecated
@@ -235,6 +294,9 @@ export default class TyGroupPathFilterFormView extends Vue {
 
 	/** 设置当前的 台风群组 */
 	@Mutation(SET_TY_GROUP, { namespace: 'typhoon' }) setTyGroup
+
+	/** 设置当前case 选中的集合台风的路径(5种中的一个) */
+	@Mutation(SET_TY_GROUP_PATH, { namespace: 'typhoon' }) setTyGroupPath
 
 	@Getter(GET_SHOW_TYPHOON_SEARCH_FORM, { namespace: 'common' }) getShowTySearchForm
 

@@ -32,6 +32,7 @@ export interface ITyGroupTip {
 /** 25-05-15 台风集合嵌套类集合 */
 export interface ITyGroupComplexList {
 	groupType: string
+	/** 发布时间 单位:s */
 	issueTs: number
 	tyCode: string
 	tyPathList: ITyPath[]

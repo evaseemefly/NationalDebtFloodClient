@@ -242,6 +242,23 @@ const getTyGroupPathList = (tyCode: string, timestamp: number) => {
 	})
 }
 
+/**
+ * 根据台风code和时间戳 获取 台风集合路径集合
+ * @param tyCode
+ * @param timestamp 发布时间戳(单位:s)
+ * @returns
+ */
+const getTyGroupDetailList = (tyCode: string, timestamp: number) => {
+	const url = `${host}${area}/grouppath/list`
+	return axios.get(url, {
+		headers: authHeader(),
+		params: {
+			ty_code: tyCode,
+			issue_ts: timestamp,
+		},
+	})
+}
+
 export {
 	loadTyListByRange,
 	loadTyRealDataList,
@@ -251,4 +268,5 @@ export {
 	loadTyListByUniqueParams,
 	getTyGroupbyTask,
 	getTyGroupPathList,
+	getTyGroupDetailList,
 }

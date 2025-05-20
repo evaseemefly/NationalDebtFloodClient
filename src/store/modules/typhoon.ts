@@ -1,9 +1,11 @@
-import { ITyGroupTip } from '@/interface/typhoon'
+import { ITyGroupComplexList, ITyGroupTip } from '@/interface/typhoon'
 import {
 	SET_TYPHOON_PATH_LIST,
 	GET_TYPHOON_PATH_LIST,
 	GET_TY_GROUP,
 	SET_TY_GROUP,
+	GET_TY_GROUP_PATH,
+	SET_TY_GROUP_PATH,
 } from './../types'
 
 export interface ITyphoon {
@@ -17,6 +19,8 @@ export interface ITyphoon {
 		tyType: string
 	}[]
 	tyGroup: ITyGroupTip
+	/** 当前选中的case中的指定预报台风路径(5种) */
+	tyGroupPath: ITyGroupComplexList
 }
 
 const state: ITyphoon = {
@@ -25,6 +29,7 @@ const state: ITyphoon = {
 		tyCode: '',
 		timeStamp: 0,
 	},
+	tyGroupPath: null,
 }
 
 const getters = {
@@ -40,6 +45,9 @@ const getters = {
 	},
 	[GET_TY_GROUP](state: ITyphoon): ITyGroupTip {
 		return state.tyGroup
+	},
+	[GET_TY_GROUP_PATH](state: ITyphoon): ITyGroupComplexList {
+		return state.tyGroupPath
 	},
 }
 
@@ -59,6 +67,9 @@ const mutations = {
 	},
 	[SET_TY_GROUP](state: ITyphoon, tyGroup: ITyGroupTip): void {
 		state.tyGroup = tyGroup
+	},
+	[SET_TY_GROUP_PATH](state: ITyphoon, tyGroupPath: ITyGroupComplexList): void {
+		state.tyGroupPath = tyGroupPath
 	},
 }
 

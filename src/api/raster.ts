@@ -5,6 +5,7 @@ import authHeader from './auth_header'
 import { ITyphoonParams4Station } from '@/interface/station'
 import { ForecastAreaEnum, LayerTypeEnum } from '@/enum/map'
 import { RasterFileEnum } from '@/enum/common'
+import { TyphoonGroupTypeEnum } from '@/enum/typhoon'
 
 // 后端的请求地址及端口
 // export const host = host
@@ -142,6 +143,32 @@ const loadGlobalSurgeMaxCoverageTif = (
 	return response
 }
 
+/**
+ * @description 获取台风组的最大增水场tif
+ * @author evaseemefly
+ * @date 2025/05/20
+ * @param {string} ty_code 台风编号
+ * @param {number} task_id 任务id
+ * @param {TyphoonGroupTypeEnum} group_type 台风组类型
+ * @returns {*}  {Promise<AxiosResponse<string>>}
+ */
+const loadSurgeMaxCoverageTifByTyGroup = (
+	ty_code: string,
+	issue_ts: number,
+	group_type: TyphoonGroupTypeEnum
+) => {
+	const url = `${host}${AREA}/surge/max/url`
+	const response = axios.get(url, {
+		params: {
+			ty_code: ty_code,
+			issue_ts: issue_ts,
+			group_type: group_type,
+		},
+		headers: authHeader(),
+	})
+	return response
+}
+
 export {
 	loadMaxSurgeCoverageInfoByIssue,
 	loadMaxSurgeCoverageTifUlrByIssue,
@@ -150,4 +177,5 @@ export {
 	loadForecastTsList,
 	loadGlobalHourlyCoverageTif,
 	loadGlobalSurgeMaxCoverageTif,
+	loadSurgeMaxCoverageTifByTyGroup,
 }
