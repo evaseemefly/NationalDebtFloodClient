@@ -509,18 +509,13 @@ class SurgeRasterGeoLayer implements ISurgeRasterLayer {
 }
 
 /**
- * @description 基于 SurgeRasterGeoLayer 的修改，适用于全球预报的增水场
+ * @description 基于 SurgeRasterGeoLayer 的修改，去掉紧耦合的部分，只根据传入的 geotiff url 进行加载
  * @author evaseemefly
- * @date 2024/11/04
+ * @date 2025/05/20
  * @class SurgeRasterLayer
  * @implements {ISurgeRasterLayer}
  */
-class /* The above code appears to be a comment block in TypeScript. It mentions `SurgeRasterLayer` and
-poses a question about the code. However, the actual functionality or purpose of the code is
-not provided in the comment block. */
-	SurgeRasterLayer
-	implements ISurgeRasterLayer
-{
+class SurgeRasterLayer implements ISurgeRasterLayer {
 	options: {
 		rasterLayer: L.Layer
 

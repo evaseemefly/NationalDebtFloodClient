@@ -28,7 +28,7 @@ const DEFAULT_TY_NAME = 'un-select'
 
 const DEFAULT_TY_NUM = '0000'
 
-const DEFAULT_URL = 'DEFAULT_URL'
+const DEFAULT_URL = '/'
 
 const DEFAULT_DATE = new Date(1970, 1, 1)
 

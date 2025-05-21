@@ -203,6 +203,7 @@ import { loadGlobalHourlyCoverageTif, loadSurgeMaxCoverageTifByTyGroup } from '@
 import { ForecastProductTypeEnum } from '@/enum/surge'
 import { getBoundsByArea } from '@/util/map'
 import { formatGroupType2Enmu } from '@/util/filter'
+import RasterLayers from '@/util/rasterLayers'
 
 /** 判断本组件内的surge配置是否符合 */
 const checkSurgeOpts = (area: ForecastAreaEnum, issueTs: number, forecastTs: number): boolean => {
@@ -625,12 +626,14 @@ export default class GlobalForecastMapView extends Vue {
 
 	@Watch('getTyGroupPath')
 	onGetTyGroupPath(val: ITyGroupComplexList): void {
+		const map: L.Map = this.$refs.basemap['mapObject']
 		const groupType = formatGroupType2Enmu(val.groupType)
 		if (val) {
 			loadSurgeMaxCoverageTifByTyGroup(val.tyCode, val.issueTs, groupType)
 				.then((res) => {
 					/** 获取的当前group对应的max surge tif=> url */
 					const tifUrl: string = res.data
+					this.addSurgeScalarLayer2Map(map, tifUrl)
 					console.log(res)
 				})
 				.catch((err) => {
@@ -663,13 +666,7 @@ export default class GlobalForecastMapView extends Vue {
 	@Getter(GET_ISSUE_TS, { namespace: 'common' })
 	getIssueTs: number
 
-	/** + 24-11-04 加载逐时的增水场 layer to map */
-	initHourlySurgeScalarLayer2Map(
-		scalarLayerType: ScalarShowTypeEnum,
-		issueTs: number,
-		forecastTs: number,
-		area: ForecastAreaEnum
-	): void {
+	addSurgeScalarLayer2Map(map: L.Map, url: string): void {
 		const scaleList = [
 			'#153C83',
 			'#4899D9',
@@ -679,16 +676,8 @@ export default class GlobalForecastMapView extends Vue {
 			'#F22015',
 			'#C40E0F',
 		]
-		const surgeRasterLayer = new SurgeRasterGeoLayer({
-			issueTimestamp: issueTs.toString(),
-
-			scaleList: scaleList,
-			customMin: 0, // 自定义下限为0
-			customMax: 2, // TODO:[-] 22-04-14 加入的自定义上限为2
-			customCoefficient: 0.8,
-			customCoeffMax: 1,
-			desc: '对于大于1.0的原值,色标会对其乘0.8',
-		})
+		const rasterLayer = new RasterLayers(url)
+		rasterLayer.add2map(map, this.$message)
 	}
 
 	/**  清除唯一的栅格图层——以后将所有清除 raster 均调用此方法 */
