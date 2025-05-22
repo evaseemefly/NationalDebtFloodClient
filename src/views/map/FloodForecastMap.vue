@@ -365,6 +365,13 @@ export default class GlobalForecastMapView extends Vue {
 		}
 	}
 
+	/** 清除当前的矢量图层 */
+	private clearAllRasterLayer(): void {
+		this.clearScalarLayer()
+		this.clearSosurfaceLayer()
+		this.clearGridTitlesLayer
+	}
+
 	private clearLayersByIds(ids: number[]): void {
 		const that = this
 		ids.forEach((id) => {
@@ -624,17 +631,37 @@ export default class GlobalForecastMapView extends Vue {
 		}
 	}
 
-	@Watch('getTyGroupPath')
-	onGetTyGroupPath(val: ITyGroupComplexList): void {
+	@Watch('floodMaxSurgeOptions')
+	onFloodMaxSurgeOptions(val: {
+		getTyGroupPath: ITyGroupComplexList
+		getScalarType: ScalarShowTypeEnum
+	}): void {
+		this.clearAllRasterLayer()
 		const map: L.Map = this.$refs.basemap['mapObject']
-		const groupType = formatGroupType2Enmu(val.groupType)
+		const groupType = formatGroupType2Enmu(val.getTyGroupPath.groupType)
 		if (val) {
-			loadSurgeMaxCoverageTifByTyGroup(val.tyCode, val.issueTs, groupType)
+			loadSurgeMaxCoverageTifByTyGroup(
+				val.getTyGroupPath.tyCode,
+				val.getTyGroupPath.issueTs,
+				groupType
+			)
 				.then((res) => {
 					/** 获取的当前group对应的max surge tif=> url */
 					const tifUrl: string = res.data
-					this.addSurgeScalarLayer2Map(map, tifUrl)
-					console.log(res)
+					return tifUrl
+				})
+				.then((url) => {
+					switch (val.getScalarType) {
+						case ScalarShowTypeEnum.RASTER:
+							// 加载栅格图层
+							this.addSurgeScalarLayer2Map(map, url)
+							break
+						case ScalarShowTypeEnum.ISOSURFACE:
+							// 加载等值面
+							const isosurfaceOpts = { filterMin: 0.2 }
+							this.addSurgeIsosurfaceLayer2Map(map, url, isosurfaceOpts)
+							break
+					}
 				})
 				.catch((err) => {
 					console.error(err)
@@ -657,6 +684,18 @@ export default class GlobalForecastMapView extends Vue {
 	@Getter(GET_TY_GROUP_PATH, { namespace: 'typhoon' })
 	getTyGroupPath: ITyGroupComplexList
 
+	/** 当前台风增水多个变量options */
+	get floodMaxSurgeOptions(): {
+		getTyGroupPath: ITyGroupComplexList
+		getScalarType: ScalarShowTypeEnum
+	} {
+		const { getTyGroupPath, getScalarType } = this
+		return {
+			getTyGroupPath,
+			getScalarType,
+		}
+	}
+
 	/** 设置字典基础信息集合 */
 	@Mutation(SET_STATIONS_BASEINFO_LIST, { namespace: 'station' }) setStationsBaseInfo: (
 		val: StationBaseInfoMidModel[]
@@ -667,6 +706,8 @@ export default class GlobalForecastMapView extends Vue {
 	getIssueTs: number
 
 	addSurgeScalarLayer2Map(map: L.Map, url: string): void {
+		this.clearScalarLayer()
+		this.clearSosurfaceLayer()
 		const scaleList = [
 			'#153C83',
 			'#4899D9',
@@ -677,7 +718,48 @@ export default class GlobalForecastMapView extends Vue {
 			'#C40E0F',
 		]
 		const rasterLayer = new RasterLayers(url)
-		rasterLayer.add2map(map, this.$message)
+		rasterLayer.add2map(map, this.$message).then((layerId: number) => {
+			// console.log('layerId', layerId)
+			// this.setRasterColorScaleRange({
+			// 	range: [0, 6],
+			// 	scaleColorList: scaleList,
+			// })
+			// this.setIsoSurgeColorScaleStrList(scaleList)
+			// this.setIsoSurgeColorScaleValRange([0, 6])
+			// this.setIsShowRasterLayerLegend(true)
+			this.scalarLayerId = layerId
+		})
+	}
+
+	addSurgeIsosurfaceLayer2Map(
+		map: L.Map,
+		url: string,
+		isosurfaceOpts: {
+			colorScale?: string[]
+			valScale?: number[]
+			filterMin?: number
+			filterMax?: number
+		} = {}
+	): void {
+		this.clearSosurfaceLayer()
+		const scaleList = [
+			'#153C83',
+			'#4899D9',
+			'#FFFB58',
+			'#F1C712',
+			'#E79325',
+			'#F22015',
+			'#C40E0F',
+		]
+		const maxSosurface = new Sosurface(url, isosurfaceOpts)
+		// 此处会有可能出现错误，对于加载的地主不存在指定文件时会出现错误，但 catch 无法捕捉到
+		maxSosurface
+			.addSosurface2MapbyScale(map, this.$message, () => {}, true)
+			.then((sosurfaceOpts) => {
+				// 采用链式表达式，由于后面的then还需要 maxSosurface 需要额外将 maxSosurface 返回
+				// 将 maxSosurface 和 sosurfaceOpts 一起返回
+				return { maxSosurface, sosurfaceOpts }
+			})
 	}
 
 	/**  清除唯一的栅格图层——以后将所有清除 raster 均调用此方法 */
@@ -699,14 +781,6 @@ export default class GlobalForecastMapView extends Vue {
 			const mymap: L.Map = this.$refs.basemap['mapObject']
 			mymap.setView(tempPostion)
 		}
-	}
-
-	/** @deprecated
-	 * 24-12-05 TODO:[-] 在全球预报中去掉对于 stationcode变化的监听
-	 */
-	@Watch('getStationCode')
-	onStationCode(val: string): void {
-		// this.loadStationAndShow(val)
 	}
 
 	@Watch('getBaseMapKey')

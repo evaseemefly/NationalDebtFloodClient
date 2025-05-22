@@ -46,7 +46,6 @@ export interface ISosurface {
 class Sosurface implements ISosurface {
 	/**
 	 * 实际的色标 range 与 color list
-	 * 若构造函数不传入 options ，默认值在此处修改
 	 *
 	 * @type {{
 	 *         colorScale: string[]
@@ -68,9 +67,7 @@ class Sosurface implements ISosurface {
 		 * @type {number[]}
 		 */
 		valScale: number[]
-		/** 显示的 grid title 的最小值(>min) */
-		gridFilterMin?: number
-		gridFilterMax?: number
+
 		filterMin?: number
 		filterMax?: number
 	} = {
@@ -88,7 +85,6 @@ class Sosurface implements ISosurface {
 
 		valScale: [0.4, 0.6, 0.8, 1.0, 1.4, 1.8, 2.0, 3],
 		filterMin: 0.2,
-		gridFilterMin: 0.4,
 
 		// valScale: [0.6, 0.8, 1.0, 1.4, 1.8, 2.0, 2.4, 2.8],
 	}
@@ -136,8 +132,6 @@ class Sosurface implements ISosurface {
 			valScale?: number[]
 			filterMax?: number
 			filterMin?: number
-			gridFilterMin?: number
-			gridFilterMax?: number
 		} = {
 			colorScale: [
 				'#153C83',
@@ -149,10 +143,8 @@ class Sosurface implements ISosurface {
 				'#C40E0F',
 			],
 			valScale: [0, 0.5, 1, 1.5, 2, 2.5, 3, 5],
-			filterMax: 4,
+			filterMax: 2,
 			filterMin: 0.2,
-			gridFilterMin: 0.4,
-			gridFilterMax: 4,
 		}
 	) {
 		this.url = url
@@ -352,7 +344,7 @@ class Sosurface implements ISosurface {
 							arr,
 							width,
 							height,
-							{ ignoreVal: this.options.gridFilterMin }
+							{ ignoreVal: 0.2 }
 						)
 					}
 					// return that._id
