@@ -34,7 +34,7 @@
 	.liner-default {
 		background: linear-gradient(to right, #32405c9e, rgba(50, 157, 150, 0.801));
 	}
-	.green-icon{
+	.green-icon {
 		background: #2bf7b3d6;
 	}
 	.green {
@@ -143,11 +143,10 @@
 };
 .station-surge-icon-onlytitle {
 	.my-station-title-surge-div {
-		width: 80px;
-		max-width: 120px;
+		width: 140px;
+		max-width: 140px;
 		display: inline-block;
 		// background: rgba(0, 0, 255, 0.829);
-		text-align: center;
 		color: aliceblue;
 		// box-shadow: 1px 3px 11px 1px #100f0f;
 		// box-shadow: 0 0 10px whitesmoke;
@@ -156,6 +155,10 @@
 		// display: flex;
 		// 注意为了防止子容器的颜色超出了父容器设置的圆角
 		overflow: auto;
+
+		// 25-05-27 由于将width调整为140，字体修改为靠左下对齐
+		text-align: left;
+		vertical-align: bottom;
 
 		div {
 			// margin: 10px;

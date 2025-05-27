@@ -759,4 +759,5 @@ export {
 	SurgeStationGroupMidModel,
 	StationSurgeMidModel,
 	StationBaseInfoMidModel,
+	IconFormOnlyTitleStationSurgeMidModel,
 }

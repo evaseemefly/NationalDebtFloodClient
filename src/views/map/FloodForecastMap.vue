@@ -204,6 +204,7 @@ import { ForecastProductTypeEnum } from '@/enum/surge'
 import { getBoundsByArea } from '@/util/map'
 import { formatGroupType2Enmu } from '@/util/filter'
 import RasterLayers from '@/util/rasterLayers'
+import { addFixedIconsLayer } from '@/util/iconLayers'
 
 /** 判断本组件内的surge配置是否符合 */
 const checkSurgeOpts = (area: ForecastAreaEnum, issueTs: number, forecastTs: number): boolean => {
@@ -345,11 +346,56 @@ export default class GlobalForecastMapView extends Vue {
 		const that = this
 
 		const mymap: L.Map = this.$refs.basemap['mapObject']
+
+		this.getAllStations(mymap)
 		// 点击地图隐藏 station surge form
 		mymap.on('click', (el) => {
 			// console.log(el)
 			that.setShowStationSurgeForm(false)
 		})
+	}
+
+	/** 获取所有的潮位站 */
+	getAllStations(map: L.Map): void {
+		this.stationBaseInfoList = []
+		// 获取所有的潮位站
+		loadAllStationStatusJoinGeoInfo()
+			.then((res) => {
+				const allStations = res.data.map(
+					(item) =>
+						new StationBaseInfoMidModel(
+							-1,
+							item.station_name,
+							item.station_code,
+							item.lat,
+							item.lon
+						)
+				)
+				return allStations
+			})
+			.then((allStations: StationBaseInfoMidModel[]) => {
+				this.stationBaseInfoList = allStations
+				// const allStationIcons: IStationInfo[] = []
+				const allStationIcons: IStationInfo[] = allStations.map((item) => {
+					// 将所有的潮位站转换为 IStationInfo
+					const stationIcon: IStationInfo = {
+						name: item.stationName,
+						station_code: item.stationCode,
+						lat: item.lat,
+						lon: item.lon,
+						gmt_realtime: new Date(),
+						surge: 10,
+					}
+					return stationIcon
+				})
+				// 在地图中加载潮位站
+				addFixedIconsLayer(map, allStationIcons, (msg: { code: string; name: string }) => {
+					console.log(`当前点击了code:${msg.code},name:${msg.name}`)
+				})
+			})
+			.catch((err) => {
+				console.error(err)
+			})
 	}
 
 	/** 清除当前选定的圈选位置的中心点 */

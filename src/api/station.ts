@@ -8,7 +8,7 @@ import { ITyphoonParams4Station } from '@/interface/station'
 // export const host = host
 axios.defaults.withCredentials = true
 
-const area = '/station'
+const area = '/flood/station'
 
 /**
  * 获取指定站点的过程增水集合
@@ -200,27 +200,34 @@ const loadStationStatusByPid = (pid: number) => {
 }
 
 /**
- * +23-04-04 获取所有站点的状态及geo信息(包含surge默认值)
+ * +25-05-26 获取所有站点的状态及geo信息(不含surge默认值)
  * @returns
- * {
-      "station_code": "waka",
-      "status": 1001,
-      "gmt_realtime": "2023-04-02T19:29:00",
-      "gmt_modify_time": "2023-04-02T19:44:25.022726",
-      "is_del": false,
-      "lat": 45.41,
-      "lon": 141.69,
-      "rid": 110,
-      "surge": -9999.99
-   },
+ * [
+    {
+        "station_name": "乍浦",
+        "station_code": "ZHAPU",
+        "lat": 30.6,
+        "lon": 121.083,
+        "desc": ""
+    },
  */
-const loadAllStationStatusJoinGeoInfo = (pid?: number) => {
-	const url = `${host}${area}/status/all/latlng`
+const loadAllStationStatusJoinGeoInfo = (
+	pid?: number
+): Promise<
+	AxiosResponse<
+		{
+			station_name: string
+			station_code: string
+			lat: number
+			lon: number
+			desc: string
+		}[]
+	>
+> => {
+	const url = `${host}${area}/all/list`
 	return axios.get(url, {
 		headers: authHeader(),
-		params: {
-			pid: pid,
-		},
+		params: {},
 	})
 }
 

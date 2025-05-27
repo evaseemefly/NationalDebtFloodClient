@@ -897,6 +897,7 @@ const addStationIcon2Map = (
 }
 
 export {
+	AbsIconCirle,
 	IconCirlePulsing,
 	DynamicIconCirle,
 	FixedIconCirle,
