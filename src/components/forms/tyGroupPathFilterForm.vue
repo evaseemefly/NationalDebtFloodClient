@@ -85,6 +85,21 @@
 				</table>
 			</section>
 		</div>
+		<div>----------------------------</div>
+		<div class="ty-search-footer">
+			<div class="ty-row">
+				<span class="ty-search-title">加载漫滩预报</span>
+				<div class="ty-search-detail">
+					<button
+						type="top"
+						class="detail-commit el-button el-button--primary btn-primary"
+						@click="toShowFloodPlainRaster()"
+					>
+						提交<i class="fa-solid fa-house-flood-water"></i>
+					</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 <script lang="ts">
@@ -117,6 +132,7 @@ import {
 	GET_SHOW_TYPHOON_SEARCH_FORM,
 	SET_TY_GROUP,
 	SET_TY_GROUP_PATH,
+	SET_FLOOD_PLAIN_SHOW_TRIGGER,
 } from '@/store/types'
 import { IPathType } from '@/types'
 import { submitTyphoonPath, submitTyphoonSurge } from '@/api/task'
@@ -265,6 +281,11 @@ export default class TyGroupPathFilterFormView extends Vue {
 		return cls
 	}
 
+	/** 显示漫滩预报栅格图层 */
+	toShowFloodPlainRaster(): void {
+		this.setFloodPlainShowTrigger()
+	}
+
 	/** + 22-10-08 清除台风路径及其他相关数据 */
 	clearTyPath(): void {
 		this.selectedTrIndex = -1
@@ -298,7 +319,11 @@ export default class TyGroupPathFilterFormView extends Vue {
 	/** 设置当前case 选中的集合台风的路径(5种中的一个) */
 	@Mutation(SET_TY_GROUP_PATH, { namespace: 'typhoon' }) setTyGroupPath
 
-	@Getter(GET_SHOW_TYPHOON_SEARCH_FORM, { namespace: 'common' }) getShowTySearchForm
+	/** 显示淹没预报的raster */
+	@Mutation(SET_FLOOD_PLAIN_SHOW_TRIGGER, { namespace: 'flood' }) setFloodPlainShowTrigger
+
+	@Getter(GET_SHOW_TYPHOON_SEARCH_FORM, { namespace: 'common' })
+	getShowTySearchForm
 
 	@Watch('getShowTySearchForm')
 	onShowTySearchForm(val: boolean) {
@@ -395,6 +420,13 @@ export default class TyGroupPathFilterFormView extends Vue {
 }
 .ty-search-title {
 	color: white;
+}
+.ty-search-footer {
+	background: #34495e;
+	.ty-row {
+		margin-bottom: 0px;
+		padding: 5px;
+	}
 }
 .el-button.btn-primary {
 	background: #1abc9c;

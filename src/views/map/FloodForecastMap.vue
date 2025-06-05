@@ -115,6 +115,7 @@ import {
 	GET_TYPHOON_PATH_LIST,
 	GET_TY_GROUP,
 	GET_TY_GROUP_PATH,
+	GET_FLOOD_PLAIN_SHOW_TRIGGER,
 } from '@/store/types'
 // 默认常量
 import {
@@ -199,7 +200,11 @@ import { loadAllStationStatusJoinGeoInfo, loadAllStationLastSurge } from '@/api/
 import { StationBaseInfoMidModel } from '@/middle_model/station'
 import { IScale } from '@/const/colorBar'
 import { getIntegerList } from '@/util/math'
-import { loadGlobalHourlyCoverageTif, loadSurgeMaxCoverageTifByTyGroup } from '@/api/raster'
+import {
+	loadFloodPlainGridTifUrl,
+	loadGlobalHourlyCoverageTif,
+	loadSurgeMaxCoverageTifByTyGroup,
+} from '@/api/raster'
 import { ForecastProductTypeEnum } from '@/enum/surge'
 import { getBoundsByArea } from '@/util/map'
 import { formatGroupType2Enmu } from '@/util/filter'
@@ -251,8 +256,8 @@ interface IPathType {
 	mixins: [WMSMixin, MapMixin],
 })
 export default class GlobalForecastMapView extends Vue {
-	zoom = 4
-	center: number[] = [19.45, 120.8833]
+	zoom = 9
+	center: number[] = [30.0, 121.8833]
 	rasterURL: string = null
 	url =
 		'https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
@@ -269,7 +274,7 @@ export default class GlobalForecastMapView extends Vue {
 		preferCanvas: true,
 		minZoom: 3,
 		// 可缩放的最大 level
-		maxZoom: 11,
+		maxZoom: 12,
 		// 目前已经使用了 canvas 渲染
 		render: L.canvas(),
 	}
@@ -348,6 +353,9 @@ export default class GlobalForecastMapView extends Vue {
 		const mymap: L.Map = this.$refs.basemap['mapObject']
 
 		this.getAllStations(mymap)
+		// TODO:[*] 25-06-04 测试加载淹没栅格图层
+		// this.addFloodPlainRasterLayer(mymap)
+
 		// 点击地图隐藏 station surge form
 		mymap.on('click', (el) => {
 			// console.log(el)
@@ -677,6 +685,47 @@ export default class GlobalForecastMapView extends Vue {
 		}
 	}
 
+	addFloodPlainRasterLayer(
+		map: L.Map,
+		scalarLayerType: ScalarShowTypeEnum,
+		options: {
+			colorScale?: string[]
+			valScale?: number[]
+			filterMin?: number
+			filterMax?: number
+		} = {}
+	): void {
+		this.clearUniquerRasterLayer()
+		const scaleList = DEFAULT_COLOR_SCALE
+		const tyCode: string = DEFAULT_TY_CODE
+		const issueTs: number = DEFAULT_TIMESTAMP
+		loadFloodPlainGridTifUrl(tyCode, issueTs)
+			.then((res) => {
+				/** 获取的当前group对应的max surge tif=> url */
+				const tifUrl: string = res.data
+				return tifUrl
+			})
+			.then((url) => {
+				switch (scalarLayerType) {
+					case ScalarShowTypeEnum.RASTER:
+						// 加载栅格图层
+						this.addSurgeScalarLayer2Map(map, url)
+						break
+					case ScalarShowTypeEnum.ISOSURFACE:
+						// 加载等值面
+						const isosurfaceOpts = { filterMin: 0.2 }
+						this.addSurgeIsosurfaceLayer2Map(map, url, isosurfaceOpts)
+						break
+					default:
+						console.warn('未定义的标量场类型')
+				}
+				// this.addSurgeScalarLayer2Map(map, url)
+			})
+			.catch((err) => {
+				console.error(err)
+			})
+	}
+
 	@Watch('floodMaxSurgeOptions')
 	onFloodMaxSurgeOptions(val: {
 		getTyGroupPath: ITyGroupComplexList
@@ -726,9 +775,24 @@ export default class GlobalForecastMapView extends Vue {
 	@Getter(GET_TY_GROUP, { namespace: 'typhoon' })
 	getTyGroup: ITyGroupTip
 
+	/** 监听——执行加载淹没范围栅格图层操作 */
+	@Getter(GET_FLOOD_PLAIN_SHOW_TRIGGER, { namespace: 'flood' })
+	getFloodPlainRasterTrigger: number
+
 	/** 获取当前选中的台风集合路径(5条中的一条) */
 	@Getter(GET_TY_GROUP_PATH, { namespace: 'typhoon' })
 	getTyGroupPath: ITyGroupComplexList
+
+	get floodPlainRasterOptions(): {
+		getFloodPlainRasterTrigger: number
+		getScalarType: ScalarShowTypeEnum
+	} {
+		const { getFloodPlainRasterTrigger, getScalarType } = this
+		return {
+			getFloodPlainRasterTrigger,
+			getScalarType,
+		}
+	}
 
 	/** 当前台风增水多个变量options */
 	get floodMaxSurgeOptions(): {
@@ -739,6 +803,20 @@ export default class GlobalForecastMapView extends Vue {
 		return {
 			getTyGroupPath,
 			getScalarType,
+		}
+	}
+
+	@Watch('floodPlainRasterOptions')
+	onFloodPlainRasterOptions(val: {
+		getFloodPlainRasterTrigger: number
+		getScalarType: ScalarShowTypeEnum
+	}): void {
+		// console.log('floodPlainRasterOptions', val)
+		const mymap: L.Map = this.$refs.basemap['mapObject']
+		if (val.getFloodPlainRasterTrigger > 0) {
+			this.addFloodPlainRasterLayer(mymap, this.getScalarType)
+		} else {
+			this.clearUniquerRasterLayer()
 		}
 	}
 

@@ -379,3 +379,10 @@ export const SET_TARGET_POSITION_LATLNG = 'SET_TARGET_POSITION_LATLNG'
 
 /** 获取目标位置的坐标 */
 export const GET_TARGET_POSITION_LATLNG = 'GET_TARGET_POSITION_LATLNG'
+
+/** ------------------ */
+// flood—— 漫滩相关
+/** 设置漫滩显示触发器（使用计数器的形式进行监听） */
+export const SET_FLOOD_PLAIN_SHOW_TRIGGER = 'SET_FLOOD_PLAIN_SHOW_TRIGGER'
+/** 获取漫滩显示触发器（使用计数器的形式进行监听） */
+export const GET_FLOOD_PLAIN_SHOW_TRIGGER = 'GET_FLOOD_PGET_FLOOD_PLAIN_SHOW_TRIGGERLAIN_SHOW'

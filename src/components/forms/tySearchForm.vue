@@ -618,6 +618,13 @@ export default class TySearchFormView extends Vue {
 .ty-search-title {
 	color: white;
 }
+.ty-search-footer {
+	background: #34495e;
+	.ty-row {
+		margin-bottom: 0px;
+		padding: 5px;
+	}
+}
 .el-button.btn-primary {
 	background: #1abc9c;
 	border-color: #1abc9c;

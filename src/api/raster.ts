@@ -169,6 +169,23 @@ const loadSurgeMaxCoverageTifByTyGroup = (
 	return response
 }
 
+/**
+ * 获取淹没范围栅格图层 geotiff
+ * @param tyCode
+ * @param issueTs
+ * @returns
+ */
+const loadFloodPlainGridTifUrl = (tyCode: string, issueTs: number) => {
+	const url = `${host}${AREA}/flood/grid/url`
+	return axios.get(url, {
+		headers: authHeader(),
+		params: {
+			ty_code: tyCode,
+			issue_ts: issueTs,
+		},
+	})
+}
+
 export {
 	loadMaxSurgeCoverageInfoByIssue,
 	loadMaxSurgeCoverageTifUlrByIssue,
@@ -178,4 +195,5 @@ export {
 	loadGlobalHourlyCoverageTif,
 	loadGlobalSurgeMaxCoverageTif,
 	loadSurgeMaxCoverageTifByTyGroup,
+	loadFloodPlainGridTifUrl,
 }

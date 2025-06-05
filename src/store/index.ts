@@ -9,6 +9,7 @@ import station from './modules/station'
 import complex from './modules/complex'
 import wave from './modules/wave'
 import surge from './modules/surge'
+import flood from './modules/flood'
 
 Vue.use(Vuex)
 
@@ -21,6 +22,7 @@ export default new Vuex.Store({
 		complex: complex,
 		wave: wave,
 		surge: surge,
+		flood: flood,
 	},
 
 	state: {
